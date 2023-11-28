@@ -171,6 +171,36 @@ int scmi_core_Irq_wake_set(void *p, uint32_t cpu_id, uint32_t mask_idx,
 	return ret;
 }
 
+int scmi_core_nonIrq_wake_set(void *p, uint32_t cpu_id, uint32_t mask_idx,
+			uint32_t num_mask, uint32_t mask)
+{
+	mailbox_mem_t *mbx_mem;
+	unsigned int token = 0;
+	int ret;
+	scmi_channel_t *ch = (scmi_channel_t *)p;
+
+	validate_scmi_channel(ch);
+	scmi_get_channel(ch);
+
+	mbx_mem = (mailbox_mem_t *)(ch->info->scmi_mbx_mem);
+	mbx_mem->msg_header = SCMI_MSG_CREATE(IMX9_SCMI_CORE_PROTO_ID,
+							IMX9_SCMI_CORE_NONIRQWAKESET_MSG, token);
+	mbx_mem->len = IMX9_SCMI_CORE_NONIRQWAKESET_MSG_LEN;
+	mbx_mem->flags = SCMI_FLAG_RESP_POLL;
+	SCMI_PAYLOAD_ARG4(mbx_mem->payload, cpu_id, mask_idx, num_mask, mask);
+
+	scmi_send_sync_command(ch);
+
+	/* Get the return values */
+	SCMI_PAYLOAD_RET_VAL1(mbx_mem->payload, ret);
+	assert(mbx_mem->len == IMX9_SCMI_CORE_NONIRQWAKESET_RESP_LEN);
+	assert(token == SCMI_MSG_GET_TOKEN(mbx_mem->msg_header));
+
+	scmi_put_channel(ch);
+
+	return ret;
+}
+
 int scmi_core_lpm_mode_set(void *p, uint32_t cpu_id, uint32_t num_configs,
 		struct scmi_lpm_config *cfg)
 {

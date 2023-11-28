@@ -82,6 +82,9 @@
 #define SCMI_PWR_MEM_SLICE_IDX_VPU           19U
 #define SCMI_PWR_MEM_SLICE_IDX_WAKEUP        20U
 
+#define DEBUG_WAKEUP_MASK BIT(1)
+#define EVENT_WAKEUP_MASK BIT(0)
+
 
 extern void* imx95_scmi_handle;
 
@@ -328,6 +331,7 @@ void imx_set_cpu_boot_entry(uint32_t core_id, uint64_t boot_entry,
 int imx_pwr_domain_on(u_register_t mpidr)
 {
 	uint32_t core_id = MPIDR_AFFLVL1_VAL(mpidr);
+	uint32_t mask = DEBUG_WAKEUP_MASK | EVENT_WAKEUP_MASK;
 
 	if (boot_stage[core_id]) {
 		imx_set_cpu_boot_entry(core_id, secure_entrypoint,
@@ -337,6 +341,11 @@ int imx_pwr_domain_on(u_register_t mpidr)
 	}
 
 	scmi_core_start(imx95_scmi_handle, scmi_cpu_id[core_id]);
+	/*
+	 * Set NON-IRQ wakeup mask for both last core and cluster.
+	 * Disable wakeup on DEBUG_WAKEUP
+	 */
+	scmi_core_nonIrq_wake_set(imx95_scmi_handle, cpu_info[core_id].cpu_id, 0, 1, mask);
 
 	return PSCI_E_SUCCESS;
 }
@@ -553,10 +562,19 @@ static const plat_psci_ops_t imx_plat_psci_ops = {
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const plat_psci_ops_t **psci_ops)
 {
+	uint32_t mask = DEBUG_WAKEUP_MASK | EVENT_WAKEUP_MASK;
+
 	/* sec_entrypoint is used for warm reset */
 	secure_entrypoint = sec_entrypoint;
 
 	imx_set_cpu_boot_entry(0, secure_entrypoint, SCMI_CPU_VEC_FLAGS_BOOT);
+
+	/*
+	 * Set NON-IRQ wakeup mask for both last core and cluster.
+	 * Disable wakeup on DEBUG_WAKEUP
+	 */
+	scmi_core_nonIrq_wake_set(imx95_scmi_handle, scmi_cpu_id[0], 0, 1, mask);
+	scmi_core_nonIrq_wake_set(imx95_scmi_handle, scmi_cpu_id[IMX95_A55P_IDX], 0, 1, mask);
 
 	/* Setup A55 Cluster state for Cpuidle. */
 	struct scmi_lpm_config cpu_lpm_cfg[] = {

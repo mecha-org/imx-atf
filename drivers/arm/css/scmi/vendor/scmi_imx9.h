@@ -73,6 +73,10 @@
 #define IMX9_SCMI_CORE_SETIRQWAKESET_MSG_LEN	64
 #define IMX9_SCMI_CORE_SETIRQWAKESET_RESP_LEN	8
 
+#define IMX9_SCMI_CORE_NONIRQWAKESET_MSG       0x9
+#define IMX9_SCMI_CORE_NONIRQWAKESET_MSG_LEN   64
+#define IMX9_SCMI_CORE_NONIRQWAKESET_RESP_LEN  8
+
 #define IMX9_SCMI_CORE_LPMMODESET_MSG		0xA
 #define IMX9_SCMI_CORE_LPMMODESET_MSG_LEN	12
 #define IMX9_SCMI_CORE_LPMMODESET_RESP_LEN	8
@@ -143,6 +147,8 @@ int scmi_core_stop(void *p, uint32_t cpu_id);
 int scmi_core_set_sleep_mode(void *p, uint32_t cpu_id, uint32_t wakeup, uint32_t mode);
 int scmi_core_Irq_wake_set(void *p, uint32_t cpu_id, uint32_t mask_idx,
 			   uint32_t num_mask, uint32_t *mask);
+int scmi_core_nonIrq_wake_set(void *p, uint32_t cpu_id, uint32_t mask_idx,
+			uint32_t num_mask, uint32_t mask);
 int scmi_core_lpm_mode_set(void *p, uint32_t cpu_id, uint32_t num_configs,
 			   struct scmi_lpm_config *cfg);
 int scmi_per_lpm_mode_set(void *p, uint32_t cpu_id, uint32_t num_configs,
