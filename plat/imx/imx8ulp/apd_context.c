@@ -268,6 +268,7 @@ void cgc1_restore(void)
 }
 
 static uint32_t tpm5[3];
+static uint32_t tpm6[3];
 
 void tpm5_save(void)
 {
@@ -281,6 +282,20 @@ void tpm5_restore(void)
 	mmio_write_32(0x29340010, tpm5[0]);
 	mmio_write_32(0x29340018, tpm5[1]);
 	mmio_write_32(0x29340020, tpm5[2]);
+}
+
+void tpm6_save(void)
+{
+	tpm6[0] = mmio_read_32(0x29820010);
+	tpm6[1] = mmio_read_32(0x29820018);
+	tpm6[2] = mmio_read_32(0x29820020);
+}
+
+void tpm6_restore(void)
+{
+	mmio_write_32(0x29820010, tpm6[0]);
+	mmio_write_32(0x29820018, tpm6[1]);
+	mmio_write_32(0x29820020, tpm6[2]);
 }
 
 static uint32_t wdog3[2];
@@ -465,6 +480,10 @@ void imx_apd_ctx_save(unsigned int proc_num)
 
 	tpm5_save();
 
+#if defined(IMX8ULP_TPM_TIMERS)
+	tpm6_save();
+#endif
+
 	lpuart_save();
 
 	/*
@@ -524,6 +543,10 @@ void imx_apd_ctx_restore(unsigned int proc_num)
 	iomuxc_restore();
 
 	tpm5_restore();
+
+#if defined(IMX8ULP_TPM_TIMERS)
+	tpm6_restore();
+#endif
 
 	xrdc_reinit();
 
