@@ -381,6 +381,7 @@ void imx_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
 	uint64_t mpidr = read_mpidr_el1();
 	uint32_t core_id = MPIDR_AFFLVL1_VAL(mpidr);
+	uint32_t l3_retn = 0;
 
 	/* do cpu level config */
 	if (is_local_state_off(CORE_PWR_STATE(target_state))) {
@@ -395,8 +396,10 @@ void imx_pwr_domain_suspend(const psci_power_state_t *target_state)
 		/* L3 retention */
 		if (is_local_state_retn(CLUSTER_PWR_STATE(target_state))) {
 			write_clusterpwrdn(DSU_CLUSTER_PWR_OFF | BIT(1));
+			l3_retn = BIT_32(SCMI_PWR_MEM_SLICE_IDX_A55L3);
 		} else {
 			write_clusterpwrdn(DSU_CLUSTER_PWR_OFF);
+			l3_retn = 0;
 		}
 	}
 
@@ -406,6 +409,11 @@ void imx_pwr_domain_suspend(const psci_power_state_t *target_state)
 		 * Setup NOC and WAKEUP MIX to power down when Linux suspends.
 		 */
 		struct scmi_lpm_config cpu_lpm_cfg[] = {
+			{
+				cpu_info[IMX95_A55P_IDX].cpu_pd_id,
+				SCMI_CPU_PD_LPM_ON_RUN_WAIT_STOP,
+				l3_retn
+			},
 			{
 				SCMI_PWR_MIX_SLICE_IDX_NOC,
 				SCMI_CPU_PD_LPM_ON_RUN_WAIT_STOP,
