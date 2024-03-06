@@ -96,13 +96,13 @@ static uintptr_t imx_sip_handler(unsigned int smc_fid,
 #if defined(PLAT_imx93) || defined(PLAT_imx91p)
 	case IMX_SIP_DDR_DVFS:
 		return dram_dvfs_handler(smc_fid, handle, x1, x2, x3);
-	case IMX_SIP_SRC:
-		SMC_RET1(handle, imx_src_handler(smc_fid, x1, x2, x3, handle));
-		break;
 #endif
 #if defined(PLAT_imx93) || defined(PLAT_imx91p) || defined(PLAT_imx95)
 	case IMX_SIP_GET_SOC_INFO:
 		return imx9_soc_info_handler(smc_fid, handle);
+	case IMX_SIP_SRC:
+		SMC_RET1(handle, imx_src_handler(smc_fid, x1, x2, x3, handle));
+		break;
 #endif
 #if defined(PLAT_imx8qm) && defined(SPD_trusty)
 	case IMX_SIP_CONFIGURE_MEM_FOR_VPU:

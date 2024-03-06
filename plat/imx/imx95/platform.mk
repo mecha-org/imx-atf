@@ -25,6 +25,7 @@ IMX_GIC_SOURCES		:=	${GICV3_SOURCES}			\
 				plat/imx/common/plat_imx8_gic.c
 
 BL31_SOURCES		+=	drivers/arm/css/scmi/scmi_common.c		\
+				drivers/arm/css/scmi/scmi_base_proto.c		\
 				drivers/arm/css/scmi/scmi_pwr_dmn_proto.c	\
 				drivers/arm/css/scmi/scmi_sys_pwr_proto.c	\
 				drivers/arm/css/scmi/vendor/scmi_imx9.c		\
@@ -35,6 +36,7 @@ BL31_SOURCES		+=	drivers/arm/css/scmi/scmi_common.c		\
 				plat/imx/imx95/plat_topology.c			\
 				plat/imx/common/lpuart_console.S		\
 				plat/imx/imx95/imx95_bl31_setup.c		\
+				plat/imx/imx95/imx95_m7.c			\
 				lib/cpus/aarch64/cortex_a55.S			\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
