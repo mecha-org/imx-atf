@@ -72,7 +72,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		     IMX_CONSOLE_BAUDRATE, &console);
 
 	/* This console is only used for boot stage */
-	console_set_scope(&console, CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
+	console_set_scope(&console, CONSOLE_FLAG_BOOT);
 
 	/*
 	 * tell BL3-1 where the non-secure software image is located
