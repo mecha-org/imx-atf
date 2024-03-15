@@ -131,6 +131,11 @@
 		(val4) = mmio_read_32((uintptr_t)&payld_arr[3]);		\
 	} while (0)
 
+#define SCMI_PAYLOAD_RET_VAL5(payld_arr, val1, val2, val3, val4, val5)	do {	\
+		SCMI_PAYLOAD_RET_VAL4(payld_arr, val1, val2, val3, val4);	\
+		(val5) = mmio_read_32((uintptr_t)&payld_arr[4]);		\
+	} while (0)
+
 /*
  * Private data structure for representing the mailbox memory layout. Refer
  * the SCMI specification for more details.

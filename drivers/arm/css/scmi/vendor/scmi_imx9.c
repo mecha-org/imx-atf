@@ -315,3 +315,36 @@ int scmi_perf_mode_set(void *p, uint32_t domain_id, uint32_t perf_level)
 
 }
 
+int scmi_core_info_get(void *p, uint32_t cpu_id, uint32_t *runmode,
+		       uint32_t *sleepmode, uint64_t *vector)
+{
+	mailbox_mem_t *mbx_mem;
+	unsigned int token = 0;
+	int ret;
+	scmi_channel_t *ch = (scmi_channel_t *)p;
+	uint32_t lo_addr, hi_addr;
+
+	validate_scmi_channel(ch);
+
+	scmi_get_channel(ch);
+
+	mbx_mem = (mailbox_mem_t *)(ch->info->scmi_mbx_mem);
+	mbx_mem->msg_header = SCMI_MSG_CREATE(IMX9_SCMI_CORE_PROTO_ID,
+			IMX9_SCMI_CORE_GETINFO_MSG, token);
+	mbx_mem->len = IMX9_SCMI_CORE_GETINFO_MSG_LEN;
+	mbx_mem->flags = SCMI_FLAG_RESP_POLL;
+	SCMI_PAYLOAD_ARG1(mbx_mem->payload, cpu_id);
+
+	scmi_send_sync_command(ch);
+
+	/* Get the return values */
+	SCMI_PAYLOAD_RET_VAL5(mbx_mem->payload, ret, *runmode, *sleepmode,
+			      lo_addr, hi_addr);
+	*vector = lo_addr | (uint64_t)hi_addr << 32;
+	assert(mbx_mem->len == IMX9_SCMI_CORE_START_RESP_LEN);
+	assert(token == SCMI_MSG_GET_TOKEN(mbx_mem->msg_header));
+
+	scmi_put_channel(ch);
+
+	return ret;
+}
