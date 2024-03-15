@@ -82,7 +82,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	bl33_image_ep_info.spsr = get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
-#ifdef SPD_trusty
+#if defined(SPD_opteed) || defined(SPD_trusty)
 	/* Populate entry point information for BL32 */
 	SET_PARAM_HEAD(&bl32_image_ep_info, PARAM_EP, VERSION_1, 0);
 	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
@@ -93,8 +93,15 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	bl33_image_ep_info.args.arg1 = BL32_BASE;
 	bl33_image_ep_info.args.arg2 = BL32_SIZE;
 
+#ifdef SPD_trusty
 	bl32_image_ep_info.args.arg0 = BL32_SIZE;
 	bl32_image_ep_info.args.arg1 = BL32_BASE;
+#else
+	/* Make sure memory is clean */
+	mmio_write_32(BL32_FDT_OVERLAY_ADDR, 0);
+	bl33_image_ep_info.args.arg3 = BL32_FDT_OVERLAY_ADDR;
+	bl32_image_ep_info.args.arg3 = BL32_FDT_OVERLAY_ADDR;
+#endif
 #endif
 }
 
